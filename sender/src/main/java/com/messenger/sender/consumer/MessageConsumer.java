@@ -29,4 +29,6 @@ public class MessageConsumer {
         //BeanUtils.copyProperties(messageRecordDTO, messageModel);
         //messageService.sendMessage(messageModel);
     }
+
+
 }

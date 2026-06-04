@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-container
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - messenger-network
+
+  user-db:
+    image: postgres:15-alpine
+    container_name: user-db-container
+    environment:
+      POSTGRES_DB: ${USER_DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - messenger-network
+
+  sender-db:
+    image: postgres:15-alpine
+    container_name: sender-db-container
+    environment:
+      POSTGRES_DB: ${SENDER_DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    networks:
+      - messenger-network
+
+  user-service:
+    build: ./user
+    container_name: user-service-container
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/${USER_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+    depends_on:
+      - rabbitmq
+      - user-db
+    networks:
+      - messenger-network
+
+  sender-service:
+    build: ./sender
+    container_name: sender-service-container
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sender-db:5432/${SENDER_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - MAIL_PORT=${MAIL_PORT}       
+      - MAIL_USER=${MAIL_USER}       
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    depends_on:
+      - rabbitmq
+      - sender-db
+    networks:
+      - messenger-network
+
+networks:
+  messenger-network:
+    driver: bridge
