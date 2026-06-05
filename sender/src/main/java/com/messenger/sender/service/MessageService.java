@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 public class MessageService {
@@ -28,7 +29,7 @@ public class MessageService {
     @Transactional
     public MessageModel sendMessage (MessageModel messageModel){
         try{
-            messageModel.setEmailDate(LocalDateTime.now());
+            messageModel.setEmailDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
             messageModel.setEmailFrom(emailFrom);
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(messageModel.getEmailTo());
@@ -41,7 +42,8 @@ public class MessageService {
         }catch (MailException e){
             messageModel.setStatusEmail(StatusEmail.ERROR);
         }finally {
-            return messageRepository.save(messageModel);
+            messageRepository.save(messageModel);
         }
+        return messageModel;
     }
 }
