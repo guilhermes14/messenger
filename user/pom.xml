@@ -49,8 +49,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.microsoft.azure</groupId>
-			<artifactId>applicationinsights-spring-boot-starter</artifactId>
-			<version>2.6.4</version>
+			<artifactId>applicationinsights-runtime-attach</artifactId>
+			<version>3.7.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
